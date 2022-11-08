@@ -100,7 +100,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     value: todo.concluido,
                     title: Text(
-                      '${todo.concluido}',
+                      '${todo.conteudo}',
                       style: TextStyle(
                           decoration: todo.concluido
                               ? TextDecoration.lineThrough
@@ -113,6 +113,7 @@ class _HomePageState extends State<HomePage> {
                         todo.concluido = inChecked!;
                         todo.dataConclusao = DateFormat('E, d/M/y HH:mm:ss')
                             .format(DateTime.now());
+                        toDoList[position] = todo.toJson();
                         _service.saveData(toDoList);
                       });
                     },
