@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 class Todo {
   String conteudo;
   bool concluido = false;
-  String dataCriacao = DateFormat('E, d/M/y HH:mm:ss').format(DateTime.now());
+  String dataCriacao = DateFormat('d/M/y HH:mm:ss').format(DateTime.now());
   String dataConclusao = '';
 
   Todo({required this.conteudo});

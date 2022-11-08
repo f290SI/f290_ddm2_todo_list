@@ -70,7 +70,6 @@ class _HomePageState extends State<HomePage> {
             child: ListView.builder(
               itemCount: toDoList.length,
               itemBuilder: (context, position) {
-
                 // Conversao de mapa para objeto
                 var todo = Todo.fromJson(toDoList[position]);
                 return Dismissible(
@@ -106,13 +105,24 @@ class _HomePageState extends State<HomePage> {
                               ? TextDecoration.lineThrough
                               : TextDecoration.none),
                     ),
-                    subtitle: Text('Criada em ${todo.dataCriacao}'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Criada em ${todo.dataCriacao}'),
+                        Text(todo.dataConclusao.isEmpty ? '' : 'Finalizada em ${todo.dataConclusao}',style: TextStyle(fontWeight: FontWeight.bold),),
+                      ],
+                    ),
                     onChanged: (inChecked) {
                       setState(() {
                         // Atualização de sintaxe de mapa para objetos
                         todo.concluido = inChecked!;
-                        todo.dataConclusao = DateFormat('E, d/M/y HH:mm:ss')
-                            .format(DateTime.now());
+                        if (!inChecked) {
+                          todo.dataConclusao = DateFormat('d/M/y HH:mm:ss')
+                              .format(DateTime.now());
+                        } else {
+                          todo.dataConclusao = '';
+                        }
+
                         toDoList[position] = todo.toJson();
                         _service.saveData(toDoList);
                       });
