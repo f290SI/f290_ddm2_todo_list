@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:f290_ddm2_todo_list/model/todo_model.dart';
 import 'package:f290_ddm2_todo_list/services/data_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -37,12 +38,11 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    _service.readData()
-        .then((data) {
-          setState(() {
-            print('JSON: $data');
-            toDoList = jsonDecode(data!);
-          });
+    _service.readData().then((data) {
+      setState(() {
+        print('JSON: $data');
+        toDoList = jsonDecode(data!);
+      });
     });
   }
 
@@ -70,7 +70,9 @@ class _HomePageState extends State<HomePage> {
             child: ListView.builder(
               itemCount: toDoList.length,
               itemBuilder: (context, position) {
-                var todo = toDoList[position];
+
+                // Conversao de mapa para objeto
+                var todo = Todo.fromJson(toDoList[position]);
                 return Dismissible(
                   key: Key("$position"),
                   direction: DismissDirection.startToEnd,
@@ -84,7 +86,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  onDismissed: (direction){
+                  onDismissed: (direction) {
                     setState(() {
                       toDoList.removeAt(position);
                       _service.saveData(toDoList);
@@ -92,15 +94,25 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: CheckboxListTile(
                     secondary: CircleAvatar(
-                      child: todo['concluido'] ? Icon(Icons.check) : Icon(Icons.warning),
+                      child: todo.concluido
+                          ? Icon(Icons.check)
+                          : Icon(Icons.warning),
                     ),
-                    value: todo['concluido'],
-                    title: Text('${todo['conteudo']}', style: TextStyle(decoration: todo['concluido'] ? TextDecoration.lineThrough : TextDecoration.none),),
-                    subtitle: Text(
-                        'Criada em ${DateFormat('E, d/M/y HH:mm:ss').format(DateTime.now())}'),
+                    value: todo.concluido,
+                    title: Text(
+                      '${todo.concluido}',
+                      style: TextStyle(
+                          decoration: todo.concluido
+                              ? TextDecoration.lineThrough
+                              : TextDecoration.none),
+                    ),
+                    subtitle: Text('Criada em ${todo.dataCriacao}'),
                     onChanged: (inChecked) {
                       setState(() {
-                        todo['concluido'] = inChecked;
+                        // Atualização de sintaxe de mapa para objetos
+                        todo.concluido = inChecked!;
+                        todo.dataConclusao = DateFormat('E, d/M/y HH:mm:ss')
+                            .format(DateTime.now());
                         _service.saveData(toDoList);
                       });
                     },
@@ -116,10 +128,10 @@ class _HomePageState extends State<HomePage> {
             setState(() {
               final conteudo = _controller.text;
 
-              Map<String, dynamic> todo = {};
-              todo.putIfAbsent('conteudo', () => conteudo);
-              todo.putIfAbsent('concluido', () => false);
-              toDoList.add(todo);
+              var newTodo = Todo(conteudo: conteudo);
+
+              // Atualização para conversao de objeto em mapa para persistencia em JSON
+              toDoList.add(newTodo.toJson());
               _controller.text = '';
 
               _service.saveData(toDoList);
