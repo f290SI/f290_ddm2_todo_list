@@ -41,11 +41,12 @@ class _HomePageState extends State<HomePage> {
     _service.readData().then((data) {
       setState(() {
         print('JSON: $data');
-        toDoList = jsonDecode(data!);
+        if(data != null) {
+          toDoList = jsonDecode(data);
+        }
       });
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,7 +117,7 @@ class _HomePageState extends State<HomePage> {
                       setState(() {
                         // Atualização de sintaxe de mapa para objetos
                         todo.concluido = inChecked!;
-                        if (!inChecked) {
+                        if (inChecked) {
                           todo.dataConclusao = DateFormat('d/M/y HH:mm:ss')
                               .format(DateTime.now());
                         } else {
