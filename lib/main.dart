@@ -41,21 +41,24 @@ class _HomePageState extends State<HomePage> {
     _service.readData().then((data) {
       setState(() {
         print('JSON: $data');
-        if(data != null) {
+        if (data != null) {
           toDoList = jsonDecode(data);
         }
       });
     });
   }
+
+  final GlobalKey<FormFieldState<String>> _formKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('ToDo List')),
+      appBar: AppBar(title: const Text('ToDo List')),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: TextField(
+            child: TextFormField(
               maxLines: 2,
               controller: _controller,
               decoration: const InputDecoration(
@@ -78,9 +81,9 @@ class _HomePageState extends State<HomePage> {
                   direction: DismissDirection.startToEnd,
                   background: Container(
                     color: Colors.red,
-                    child: Align(
+                    child: const Align(
                       alignment: Alignment.centerLeft,
-                      child: const Icon(
+                      child: Icon(
                         Icons.delete,
                         color: Colors.white,
                       ),
@@ -95,12 +98,12 @@ class _HomePageState extends State<HomePage> {
                   child: CheckboxListTile(
                     secondary: CircleAvatar(
                       child: todo.concluido
-                          ? Icon(Icons.check)
-                          : Icon(Icons.warning),
+                          ? const Icon(Icons.check)
+                          : const Icon(Icons.warning),
                     ),
                     value: todo.concluido,
                     title: Text(
-                      '${todo.conteudo}',
+                      todo.conteudo,
                       style: TextStyle(
                           decoration: todo.concluido
                               ? TextDecoration.lineThrough
@@ -110,7 +113,12 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Criada em ${todo.dataCriacao}'),
-                        Text(todo.dataConclusao.isEmpty ? '' : 'Finalizada em ${todo.dataConclusao}',style: TextStyle(fontWeight: FontWeight.bold),),
+                        Text(
+                          todo.dataConclusao.isEmpty
+                              ? ''
+                              : 'Finalizada em ${todo.dataConclusao}',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ],
                     ),
                     onChanged: (inChecked) {
@@ -140,6 +148,17 @@ class _HomePageState extends State<HomePage> {
             setState(() {
               final conteudo = _controller.text;
 
+              if (!mounted) return;
+
+              if (conteudo.isEmpty) {
+                ScaffoldMessenger.of(context)
+                  ..removeCurrentSnackBar()
+                  ..showSnackBar(const SnackBar(
+                    content: Text('Preencha a tarefa.'),
+                  ));
+                return;
+              }
+
               var newTodo = Todo(conteudo: conteudo);
 
               // Atualização para conversao de objeto em mapa para persistencia em JSON
@@ -149,8 +168,8 @@ class _HomePageState extends State<HomePage> {
               _service.saveData(toDoList);
             });
           },
-          icon: Icon(Icons.add),
-          label: Text('Adicionar')),
+          icon: const Icon(Icons.add),
+          label: const Text('Adicionar')),
     );
   }
 }
